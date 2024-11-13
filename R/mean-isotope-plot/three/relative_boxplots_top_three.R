@@ -51,29 +51,29 @@ df_select <- df %>%
     common_name_2 = if_else(common_name_2 %in% c("Alewife\nNA"),
                             true = str_remove(common_name_2, "\nNA"),
                             false = common_name_2),
-      common_name_2 = factor(common_name_2,
-                             levels =
-                               c("Round\nGoby", "Alewife", "Lake\nTrout")
+    common_name_2 = factor(common_name_2,
+                           levels =
+                             c("Round\nGoby", "Alewife", "Lake\nTrout")
     ),
     fish_guilds = factor(fish_guilds,
                          level = c("Nearshore Benthic Invertivore",
                                    "Offshore Benthic Invertivore",
-
+                                   
                                    "Nearshore Benthopelagic Invertivore",
                                    "Offshore Benthopelagic Insectivore",
-
+                                   
                                    "Nearshore Pelagic Planktivore",
                                    "Offshore Pelagic Planktivore",
-
+                                   
                                    "Nearshore Benthopelagic Omnivore",
                                    "Offshore Pelagic Invertivore",
-
+                                   
                                    "Nearshore Benthopelagic Piscivore",
                                    "Offshore Pelagic Piscivore",
-
+                                   
                                    "Nearshore Benthic Omnivore"
-
-
+                                   
+                                   
                          )
     ),
     hab_trop = factor(paste(habitat_type, "\n", trophic_guild, sep = " "),
@@ -85,7 +85,7 @@ df_select <- df %>%
                                  "Benthopelagic \n Piscivore",
                                  "Pelagic \n Piscivore",
                                  "Benthic \n Omnivore")
-
+                      
     )
   )
 
@@ -132,8 +132,7 @@ df_isotope <- df_select %>%
 p <- df_isotope %>%
   split(.$isotope) %>%
   map(~
-        ggplot(data = .x, aes(x = interaction(common_name_2, hab_trop,
-                                              sep = "!"),
+        ggplot(data = .x, aes(x = common_name_2,
                               y = value,
                               fill = ecoregion)) +
         geom_boxplot(outlier.shape = NA,
@@ -152,8 +151,6 @@ p <- df_isotope %>%
         scale_colour_viridis_d(begin = 0.1,
                                # end = 0.8,
                                name = "Species") +
-        scale_x_discrete(guide = guide_axis_nested(delim = "!", ),
-                         name = "Fish Guild") +
         guides(fill = guide_legend(override.aes = list(shape = 21,
                                                        colour = "black",
                                                        stroke = 0.8,
@@ -175,7 +172,7 @@ p <- df_isotope %>%
           y = paste("\U03B4",
                     "<sup>", unique(.$neutron), "</sup>",unique(.$element),
                     sep = ""
-
+                    
           )
         )
   )
@@ -233,7 +230,7 @@ ggstat <- ggplot_build(p$rel_d13c_lfree)$data
 # # ---- letter prep ----
 sig_let_d13c <-  tibble(
   common_name_2 = factor(d13c_long$common_name_2),
-
+  
   ecoregion = factor(d13c_long$ecoregion, levels =
                        c("Anthropogenic",
                          "Inlet",
@@ -245,7 +242,7 @@ sig_let_d13c <-  tibble(
   letter = d13c_long$letters,
   x = d13c_long$ecoregion,
   y = ggstat[[1]]$ymax,
-
+  
 ) %>%
   arrange(common_name_2, ecoregion) %>%
   left_join(hab_trop_join, by = "common_name_2")
@@ -275,45 +272,46 @@ sum_max_c <- df_isotope %>%
   )
 
 p5 <- (p$rel_d13c_lfree +
-    geom_signif(y_position = sum_max_c$max_value,
-                xmin = c(0.64, 1.66, 2.66),
-                # seq(0.25, 3.25, 1.25),
-                xmax = c(1.34, 2.36, 3.36),
-                annotation = c("A", "B", "C"),
-                tip_length = 0.02, textsize = 6) +
-    scale_y_continuous(breaks = seq(-5, 15, 2.5),
-                       # limits = c(0, 12.5)
-                       ) +
-    # scale_y_continuous(breaks = rev(seq(-32, -12, 2))) +
-    geom_text(data = sig_let_d13c, aes(x = interaction(common_name_2,
-                                                       hab_trop, sep = "!"),
-                                       y = y + 0.45,
-                                       label = letter,
-                                       group = ecoregion
-    ),
-    size = 5,
-    position = position_dodge(width = 0.75)) +
-    coord_cartesian(ylim = c(-5, 15)) +
-    theme(
-      legend.position = "inside",
-      # legend.position = "none",
-      legend.position.inside = c(0.93, 0.81),
-      legend.background = element_blank()
-    ) +
-    labs(
-      y = paste("Relative ", "\U03B4",
-                "<sup>", 13, "</sup>", "C (‰)",
-                sep = "")
-    ))
+         geom_signif(y_position = sum_max_c$max_value,
+                     xmin = c(0.64, 1.66, 2.66),
+                     # seq(0.25, 3.25, 1.25),
+                     xmax = c(1.34, 2.36, 3.36),
+                     annotation = c("A", "B", "C"),
+                     tip_length = 0.02, textsize = 6) +
+         scale_y_continuous(breaks = seq(-5, 15, 2.5),
+                            # limits = c(0, 12.5)
+         ) +
+         # scale_y_continuous(breaks = rev(seq(-32, -12, 2))) +
+         geom_text(data = sig_let_d13c, 
+                   aes(x = common_name_2,
+                       y = y + 0.45,
+                       label = letter,
+                       group = ecoregion
+                   ),
+                   size = 5,
+                   position = position_dodge(width = 0.75)) +
+         coord_cartesian(ylim = c(-5, 15)) +
+         theme(
+           legend.position = "inside",
+           # legend.position = "none",
+           legend.position.inside = c(0.93, 0.81),
+           legend.background = element_blank()
+         ) +
+         labs(
+           x = "Species",
+           y = paste("Relative ", "\U03B4",
+                     "<sup>", 13, "</sup>", "C (‰)",
+                     sep = "")
+         ))
 
 p5
-# ggsave(p5, filename = here("plots",
-#                            "top-three",
-#                            "boxplot",
-#                            paste("boxplot_relative_d13c_top_three_", Sys.Date(),
-#                                  ".png", sep = "")),
-#        width = 12, height = 6)
-#
-#
-# write_rds(p5, here("plot-objects",
-#                    "rel_d13c_top_three_boxplot_letters.rds"))
+ggsave(p5, filename = here("plots",
+                           "top-three",
+                           "boxplot",
+                           paste("boxplot_relative_d13c_top_three_", Sys.Date(),
+                                 ".png", sep = "")),
+       width = 12, height = 6)
+
+
+write_rds(p5, here("plot-objects",
+                   "rel_d13c_top_three_boxplot_letters.rds"))
