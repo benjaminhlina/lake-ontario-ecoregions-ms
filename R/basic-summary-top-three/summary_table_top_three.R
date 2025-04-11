@@ -25,12 +25,19 @@
 
 # ---- BRING IN zebra mussels ----
 
-# ---- model outut ----
-
-
 zm_summary <- qs::qread(here("data-saved",
                              "zebra-mussels",
                              "filtered_quant_raw_zebra_mussel_data.qs"))
+glimpse(zm_summary)
+ # ----- bring in benthic ----
+
+benthic <- qs::qread(here('data-saved',
+                          'benthic-baseline',
+                          "cleaned_benthic_baseline.qs"))
+
+  
+  
+glimpse(benthic)
 # ---- bring in data ----
 df <- read_rds(here("data-saved",
                     "top-three",
@@ -47,7 +54,7 @@ df <- read_rds(here("data-saved",
 
 
 
-
+glimpse(df)
 # next we are going to select the columns we need for siber
 # ---- select what we need for siber ----
 
@@ -165,38 +172,24 @@ df_wide_summary <- df_wide_update %>%
   group_by(common_name, ecoregion, fish_g) %>%
   summarise(
     n = n(),
-    mean_len = mean(tlen, na.rm = TRUE) %>%
-      round(digits = 0),
-    min_len = min(tlen,  na.rm = TRUE) %>%
-      round(digits = 0),
-    max_len = max(tlen,  na.rm = TRUE) %>%
-      round(digits = 0),
-    sem_len = (sd(tlen,  na.rm = TRUE) / sqrt(n())) %>%
-      round(digits = 0),
-    mean_wt = mean(rwt,  na.rm = TRUE) %>%
-      round(digits = 0),
-    min_wt = min(rwt,  na.rm = TRUE) %>%
-      round(digits = 0),
-    max_wt = max(rwt,  na.rm = TRUE) %>%
-      round(digits = 0),
-    sem_wt = (sd(rwt,  na.rm = TRUE) / sqrt(n())) %>%
-      round(digits = 0),
-
-    mean_rel_d13c = mean(rel_d13c_lfree) %>%
-      round(digits = 2),
-    rel_d13_sem = (sd(rel_d13c_lfree) / sqrt(n())) %>%
-      round(digits = 2),
-    mean_d13c = mean(d13c) %>%
-      round(digits = 2),
-    sem_d13c = (sd(d13c) / sqrt(n())) %>%
-      round(digits = 2),
-    mean_d15n = mean(d15n) %>%
-      round(digits = 2),
-    sem_d15n = (sd(d15n) / sqrt(n())) %>%
-      round(digits = 2)
+    mean_len = mean(tlen, na.rm = TRUE),
+    min_len = min(tlen,  na.rm = TRUE),
+    max_len = max(tlen,  na.rm = TRUE),
+    sem_len = (sd(tlen,  na.rm = TRUE) / sqrt(n())),
+    mean_wt = mean(rwt,  na.rm = TRUE),
+    min_wt = min(rwt,  na.rm = TRUE),
+    max_wt = max(rwt,  na.rm = TRUE),
+    sem_wt = (sd(rwt,  na.rm = TRUE) / sqrt(n())),
+    mean_rel_d13c = mean(rel_d13c_lfree),
+    rel_d13_sem = (sd(rel_d13c_lfree) / sqrt(n())),
+    mean_d13c = mean(d13c),
+    sem_d13c = (sd(d13c) / sqrt(n())),
+    mean_d15n = mean(d15n),
+    sem_d15n = (sd(d15n) / sqrt(n())),
   ) %>%
   ungroup() %>%
   arrange(common_name, ecoregion) %>%
+  mutate(pick(is.numeric, round, 2)) %>% 
   mutate(
     weight = paste(mean_wt, " ± ", sem_wt, " (", min_wt, " - ",
                    max_wt, ")", sep = "")
